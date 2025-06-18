@@ -108,8 +108,11 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                     </path>
                 </svg>
             </button>
-            <!--Notification and Profile Admin-->
+            <!--Notification and Profile Admin--> 
+             <h3 class="head">User Accounts</h3>
+
             <div class="profile-admin">
+              
                 <div class="dropdown">
                     <button class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="../../../../assets/img/vet logo.png"
@@ -123,7 +126,7 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
         </div>
         <!--Notification and Profile Admin-->
         <div class="app-req">
-            <h3>User Accounts</h3>
+            
             <div class="walk-in px-lg-5">
                 <div class="mb-3 x d-flex">
                     <div class="search">

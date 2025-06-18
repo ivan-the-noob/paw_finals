@@ -9,7 +9,7 @@ require '../../../../db.php';
 
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$limit = 10;
+$limit = 5;
 $offset = ($page - 1) * $limit;
 
 // Updated query: join appointment with users to get contact_number
@@ -145,6 +145,7 @@ $showPagination = $totalRow['total'] > 10;
                 </svg>
             </button>
             <!--Notification and Profile Admin-->
+             <h3 class="head">Booking Request</h3>
             <div class="profile-admin">
                 <div class="dropdown">
                     <button class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -158,8 +159,9 @@ $showPagination = $totalRow['total'] > 10;
             </div>
         </div>
         <!--Notification and Profile Admin-->
+        
         <div class="app-req">
-            <h3>Booking Request</h3>
+           
             <div class="walk-in px-lg-5">
                 <div class="mb-3 x d-flex">
                     <div class="search w-100 d-flex justify-content-end">

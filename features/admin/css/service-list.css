@@ -62,9 +62,14 @@ body {
     display: block;
     justify-content: center;
     align-items: center;
-    width: 70%;
-    height: 15vh;
-    margin: 20px 0 20px 30px;
+    width: 55%;
+    height: 10vh;
+    margin: 20px 0 10px 30px;
+}
+
+h3{
+    color: #7A3015;
+    padding-left: 6%;
 }
 
 .navbar-links {

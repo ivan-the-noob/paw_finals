@@ -8,7 +8,7 @@
     require '../../../../db.php';
     $search = isset($_GET['search']) ? $_GET['search'] : '';
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $limit = 10; 
+    $limit = 5; 
     $offset = ($page - 1) * $limit;
     
     // Query to fetch the on-going appointments
@@ -140,6 +140,8 @@
                 </svg>
             </button>
             <!--Notification and Profile Admin-->
+            <h3 class="head">On going</h3>
+
             <div class="profile-admin">
                 <div class="dropdown">
                     <button class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -154,7 +156,7 @@
         </div>
         <!--Notification and Profile Admin-->
         <div class="app-req">
-            <h3>On going</h3>
+            
             <div class="walk-in px-lg-5">
                 <div class="mb-3 x d-flex">
                 <div class="search w-100 d-flex justify-content-end">

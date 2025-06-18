@@ -121,6 +121,7 @@ $conn->close();
                 </svg>
             </button>
             <!--Notification and Profile Admin-->
+              <h3>Service List</h3>
             <div class="profile-admin">
                 <div class="dropdown">
                     <button class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -135,7 +136,7 @@ $conn->close();
         </div>
         <!--Notification and Profile Admin End-->
         <div class="app-req">
-            <h3>Service List</h3>
+          
             <div class="walk-in px-lg-5">
                 <div class="mb-3 x d-flex">
                     <div class="search">

@@ -62,10 +62,11 @@ body {
     display: block;
     justify-content: center;
     align-items: center;
-    width: 70%;
-    height: 15vh;
-    margin: 20px 0 20px 30px;
+    width: 55%;
+    height: 10vh;
+    margin: 20px 0 10px 30px;
 }
+
 
 .navbar-links {
     display: flex;
@@ -168,20 +169,18 @@ body {
     padding: 10px 20px;
     overflow-x: auto;
 }
-.app-req h3{
-    padding: 30px 0 0 20px !important;
-    color: #7A3015 !important;
-}
 
-h3{
-    padding: 20px 30px; 
-}
+ h3{
+    padding-left: 6%;
+    color: #7A3015;
+ }
 
 
 .table-remove-borders th,
 .table-remove-borders td {
     border: none !important;
     text-align: center;
+    font-size: 14px;
     
 }
 .table-remove-borders th{

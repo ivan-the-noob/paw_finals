@@ -2,12 +2,7 @@
 session_start();
 require '../../../../db.php'; 
 
-if (!isset($_SESSION['email'])) {
-    echo "You need to be logged in to submit a message.";
-    exit();
-}
-
-$email = $_SESSION['email']; 
+$email = $_SESSION['email'] ?? ''; 
 $message = $_POST['comment'] ?? ''; 
 $date_today = date('Y-m-d');
 

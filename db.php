@@ -9,6 +9,7 @@ $dbname = "u373116035_digitalpaws";
 // $password = "";
 // $dbname = "u373116035_digitalpaws";
 
+
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {

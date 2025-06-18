@@ -110,6 +110,7 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                 </svg>
             </button>
             <!--Notification and Profile Admin-->
+             <h3 class="head">Pending</h3>
             <div class="profile-admin">
                 <div class="dropdown">
                     <button class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -124,7 +125,7 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
         </div>
         <!--Notification and Profile Admin-->
         <div class="app-req">
-            <h3>Pending</h3>
+           
             <div class="walk-in px-lg-5">
                 <div class="mb-3 x d-flex">
                     <div class="search">

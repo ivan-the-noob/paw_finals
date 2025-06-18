@@ -116,6 +116,7 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                 </svg>
             </button>
             <!--Notification and Profile Admin-->
+              <h3>Products</h3>
             <div class="profile-admin">
                 <div class="dropdown">
                     <button class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -130,12 +131,31 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
         </div>
         <!--Notification and Profile Admin End-->
         <div class="app-req">
-            <h3>Products</h3>
-            <div class="container mt-4 mb-4 " style="background-color: #fff;">
-                <h3>Low Quantity</h3>
+            <style>
+    @keyframes popIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    #lowStockContainer {
+        animation: popIn 0.6s ease-out;
+    }
+</style>
+
+          
+            <div class="container mt-4 mb-4 position-absolute w-75" id="lowStockContainer" style="background-color: #fff; z-index: 999; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);">
+    <!-- Close Button -->
+    <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close" onclick="document.getElementById('lowStockContainer').style.display='none';"></button>
+
+    <h3 class="mt-2">Low Quantity</h3>
     <div class="row">
         <?php
-        
         require '../../../../db.php';
 
         $products = $conn->query("SELECT * FROM product WHERE quantity < 4");
@@ -144,25 +164,16 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
             while ($product = $products->fetch_assoc()): ?>
                 <div class="col-md-4">
                     <div class="card mb-4 shadow-sm">
-                     
                         <div class="card-body">
                             <h5 class="card-title"><?= htmlspecialchars($product['product_name']) ?></h5>
-                            <p class="card-text">
-                                <strong>Type:</strong> <?= htmlspecialchars($product['type']) ?>
-                            </p>
-                            <p class="card-text">
-                                <strong>Price:</strong> PHP <?= htmlspecialchars(number_format($product['cost'], 2)) ?>
-                            </p>
-                            <p class="card-text fw-bold" style="color: red;">
-                                <strong>Quantity:</strong> <?= htmlspecialchars($product['quantity']) ?>
-                            </p>
+                            <p class="card-text"><strong>Type:</strong> <?= htmlspecialchars($product['type']) ?></p>
+                            <p class="card-text"><strong>Price:</strong> PHP <?= htmlspecialchars(number_format($product['cost'], 2)) ?></p>
+                            <p class="card-text fw-bold" style="color: red;"><strong>Quantity:</strong> <?= htmlspecialchars($product['quantity']) ?></p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <button class="btn btn-primary" title="Update" data-bs-toggle="modal" 
-                                        data-bs-target="#editProductModal<?= $product['id'] ?>">
+                                <button class="btn btn-primary" title="Update" data-bs-toggle="modal" data-bs-target="#editProductModal<?= $product['id'] ?>">
                                     <i class="fas fa-edit"></i> Restock 
                                 </button>
-                                <button class="btn btn-danger" title="Delete" data-bs-toggle="modal" 
-                                        data-bs-target="#confirmDeleteModal<?= $product['id'] ?>">
+                                <button class="btn btn-danger" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal<?= $product['id'] ?>">
                                     <i class="fas fa-trash-alt"></i> Delete
                                 </button>
                             </div>
@@ -177,6 +188,7 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
         <?php endif; ?>
     </div>
 </div>
+
            
             <div class="walk-in px-lg-5">
                 <div class="mb-3 x d-flex">
@@ -240,7 +252,7 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                     }
                 }
 
-                $perPage = 9; // Number of records per page
+                $perPage = 5; // Number of records per page
                 $page = isset($_GET['page']) ? $_GET['page'] : 1; // Get the current page from the URL, default to 1
                 $offset = ($page - 1) * $perPage; // Calculate the offset for pagination
 

@@ -438,7 +438,7 @@ if ($email) {
             <?php
             require 'db.php';
 
-            $sql = "SELECT * FROM product ORDER BY id DESC LIMIT 6";
+            $sql = "SELECT * FROM product ORDER BY id DESC ";
             $result = $conn->query($sql);
             ?>
             <div class="col-lg-9 col-md-8 col-12">

@@ -2,14 +2,13 @@
 session_start();
 include '../../../../db.php';
 
-// Include PHPMailer classes manually
-require '../../../../PHPMailer/src/PHPMailer.php';
-require '../../../../PHPMailer/src/SMTP.php';
-require '../../../../PHPMailer/src/Exception.php';
+// Use Composer's autoloader
+require '../../../../vendor/autoload.php';
 
-// Use PHPMailer class without namespaces
-$mail = new PHPMailer\PHPMailer\PHPMailer();
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
+// Redirect if already logged in
 if (isset($_SESSION['email'])) {
     header("Location: ../../../../index.php");
     exit(); 
@@ -37,9 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $insert->execute();
 
         // Replace this with your actual domain path
-        $resetLink = "http://yourdomain.com/path/to/reset_password.php?token=$token";
+        $resetLink = "https://digitalpaw.icu/features/users/web/api/recover_password.php?token=$token";
 
         try {
+            $mail = new PHPMailer(true);
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;

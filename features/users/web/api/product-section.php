@@ -276,15 +276,16 @@ $result = $stmt->get_result();
 
 </body>
 <script>
-    let allProducts = [];
+let allProducts = [];
 let currentCategory = '';
 
 function loadAllProducts() {
     const productElements = document.querySelectorAll('.product-item');
-    console.log("Found products:", productElements.length); // <--- check if > 0
+    console.log("Found products:", productElements.length);
     allProducts = Array.from(productElements);
-    displayLimitedProducts(allProducts);
+    // Don't display anything yet — let filterProducts handle it
 }
+
 function filterProducts(type) {
     currentCategory = type;
 
@@ -294,10 +295,10 @@ function filterProducts(type) {
         return productType.toLowerCase() === type.toLowerCase();
     });
 
-    displayLimitedProducts(filteredProducts);
+    displayProducts(filteredProducts);
 }
 
-function displayLimitedProducts(products) {
+function displayProducts(products) {
     allProducts.forEach(product => {
         product.style.display = 'none';
     });
@@ -309,10 +310,10 @@ function displayLimitedProducts(products) {
 
 document.addEventListener("DOMContentLoaded", function () {
     loadAllProducts();
-    filterProducts('all'); // Show all initially
+    filterProducts('all');
 });
-
 </script>
+
 <script src="../../function/script/chat-bot_product.js"></script>
 <script src="../../function/script/chatbot_questionslide.js"></script>
 <script src="../../function/script/chatbot-toggle.js"></script>

@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 if (isset($_SESSION['email']) && isset($_SESSION['profile_picture'])) {
     $email = $_SESSION['email'];
@@ -10,19 +11,31 @@ if (isset($_SESSION['email']) && isset($_SESSION['profile_picture'])) {
 
 require '../../../../db.php';
 
-$searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
-$searchCondition = $searchQuery ? "WHERE product_name LIKE ?" : "";
+// Pagination parameters
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$itemsPerPage = 1; // Define how many items you want to show per page
 
-$sql = "SELECT * FROM product $searchCondition";
-$stmt = $conn->prepare($sql);
-if ($searchQuery) {
-    $stmt->bind_param("s", $searchLike);
-    $searchLike = "%$searchQuery%";
-}
-$stmt->execute();
-$result = $stmt->get_result();
+// Query to get the total number of products
+$sql = "SELECT COUNT(*) AS total FROM product";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+$totalItems = $row['total'];
+
+// Calculate total number of pages
+$totalPages = ceil($totalItems / $itemsPerPage);
+
+// Make sure the page number is within the valid range
+$page = max(1, min($page, $totalPages));
+
+// Calculate the starting product for the current page
+$start = ($page - 1) * $itemsPerPage;
+
+// Get the products for the current page
+$sql = "SELECT * FROM product LIMIT $start, $itemsPerPage";
+$result = $conn->query($sql);
+$products = $result->fetch_all(MYSQLI_ASSOC);
+
 ?>
-
 
 
 <!DOCTYPE html>
@@ -185,7 +198,7 @@ $result = $stmt->get_result();
             <h2 class="mb-4">Essentials</h2>
         </div>
         <div class="col-md-4 d-flex align-items-center">
-            <form method="GET" class="w-100">
+        <form method="GET" class="w-100">
                 <input type="search" name="search" id="search-product" class="search-product" placeholder="Search products..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
                 <button type="submit" class="product-button">Search</button>
             </form>
@@ -198,13 +211,48 @@ $result = $stmt->get_result();
                     <button onclick="filterProducts('petfood')">Pet Food</button>
                     <button onclick="filterProducts('pettoys')">Pet Toys</button>
                     <button onclick="filterProducts('supplements')">Supplements</button>
-                    <button onclick="filterProducts('all')">Show All</button>
                 </div>
             </div>
 
             <div class="col-lg-9 col-md-8 col-12">
                 <div class="row" id="product-list">
                 <?php
+                    require '../../../../db.php';
+
+                    // Pagination and search parameters
+                    $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
+                    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                    $itemsPerPage = 6;
+
+                    // Search condition
+                    $searchCondition = $searchQuery ? "WHERE product_name LIKE ?" : "";
+
+                    // Get total items for pagination
+                    $sqlTotal = "SELECT COUNT(*) AS total FROM product $searchCondition";
+                    $stmtTotal = $conn->prepare($sqlTotal);
+                    if ($searchQuery) {
+                        $stmtTotal->bind_param("s", $searchLike);
+                        $searchLike = "%$searchQuery%";
+                    }
+                    $stmtTotal->execute();
+                    $resultTotal = $stmtTotal->get_result();
+                    $totalItems = $resultTotal->fetch_assoc()['total'];
+
+                    $totalPages = ceil($totalItems / $itemsPerPage);
+                    $page = max(1, min($page, $totalPages));
+                    $start = ($page - 1) * $itemsPerPage;
+
+                    // Get paginated and filtered products
+                    $sql = "SELECT * FROM product $searchCondition LIMIT ?, ?";
+                    $stmt = $conn->prepare($sql);
+                    if ($searchQuery) {
+                        $stmt->bind_param("sii", $searchLike, $start, $itemsPerPage);
+                    } else {
+                        $stmt->bind_param("ii", $start, $itemsPerPage);
+                    }
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+
                     if ($result->num_rows > 0):
                         while ($product = $result->fetch_assoc()): ?>
                            <div class="col-lg-4 col-md-6 col-12 mb-4 product-item" data-type="<?= strtolower($product['type']) ?>">
@@ -230,10 +278,40 @@ $result = $stmt->get_result();
                                     <?php endif; ?>
                                 </div>
                             </div>
-                        <?php endwhile;
+                        <?php endwhile; 
                     else: ?>
                         <p>No products found matching your search criteria.</p>
                     <?php endif; ?>
+                </div>
+
+                <!-- Pagination Links -->
+                <div class="pagination d-flex justify-content-end mt-4">
+                    <nav>
+                        <ul class="pagination d-flex gap-2">
+                            <?php if ($page > 1): ?>
+                                <li class="page-item">
+                                    <a class="page-link prev" href="?page=<?= $page - 1 ?>"><</a>
+                                </li>
+                            <?php endif; ?>
+
+                            <?php
+                            $startPage = max(1, $page - 1);
+                            $endPage = min($totalPages, $startPage + 2);
+                            $startPage = max(1, $endPage - 2);
+
+                            for ($i = $startPage; $i <= $endPage; $i++): ?>
+                                <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                                    <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                </li>
+                            <?php endfor; ?>
+
+                            <?php if ($page < $totalPages): ?>
+                                <li class="page-item">
+                                    <a class="page-link next" href="?page=<?= $page + 1 ?>">></a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -275,63 +353,10 @@ $result = $stmt->get_result();
 
 
 </body>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Initialize product variables
-    let allProducts = [];
-    let currentCategory = 'all'; // Default to showing all
-    
-    // Load all products when page loads
-    function loadAllProducts() {
-        allProducts = Array.from(document.querySelectorAll('.product-item'));
-        console.log("Total products found:", allProducts.length); // Debug log
-        
-        if (allProducts.length > 0) {
-            // Initially show all products
-            showAllProducts();
-        } else {
-            console.log("No products found in the DOM");
-        }
-    }
-    
-    // Show all products
-    function showAllProducts() {
-        allProducts.forEach(product => {
-            product.style.display = 'block';
-        });
-    }
-    
-    // Filter products by type
-    function filterProducts(type) {
-        currentCategory = type;
-        console.log(`Filtering by: ${type}`); // Debug log
-        
-        if (type === 'all') {
-            showAllProducts();
-            return;
-        }
-        
-        allProducts.forEach(product => {
-            const productType = product.dataset.type.toLowerCase();
-            if (productType === type.toLowerCase()) {
-                product.style.display = 'block';
-            } else {
-                product.style.display = 'none';
-            }
-        });
-    }
-    
-    // Initialize
-    loadAllProducts();
-    
-    // Make filterProducts available globally for button clicks
-    window.filterProducts = filterProducts;
-});
-</script>
 <script src="../../function/script/chat-bot_product.js"></script>
 <script src="../../function/script/chatbot_questionslide.js"></script>
 <script src="../../function/script/chatbot-toggle.js"></script>
-
+<!-- <script src="../../function/script/filter.js"></script> -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
 

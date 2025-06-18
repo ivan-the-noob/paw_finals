@@ -411,7 +411,8 @@ document.querySelectorAll('.cancel').forEach(button => {
                 const response = xhr.responseText.trim();
                 if (response === 'success') {
                     alert('Order cancelled successfully!');
-                    showSection('cancelled-orders');
+
+                    location.reload();
                 } else {
                     alert('Failed to cancel: ' + response);
                 }
@@ -419,13 +420,10 @@ document.querySelectorAll('.cancel').forEach(button => {
                 console.log('Error:', xhr.statusText);
             }
         };
-        xhr.send('id=' + orderId + '&status=Cancel'); 
+        xhr.send('id=' + orderId + '&status=cancel'); 
     });
 });
 </script>
-
-
-
 
 
 

@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 if (isset($_SESSION['email']) && isset($_SESSION['profile_picture'])) {
     $email = $_SESSION['email'];
@@ -10,68 +11,32 @@ if (isset($_SESSION['email']) && isset($_SESSION['profile_picture'])) {
 
 require '../../../../db.php';
 
-// Get all filter parameters
-$searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
-$typeFilter = isset($_GET['type']) ? strtolower($_GET['type']) : 'all';
+// Pagination parameters
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$itemsPerPage = 6;
+$itemsPerPage = 1; // Define how many items you want to show per page
 
-// Build conditions for SQL query
-$conditions = [];
-$params = [];
-$types = '';
+// Query to get the total number of products
+$sql = "SELECT COUNT(*) AS total FROM product";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+$totalItems = $row['total'];
 
-if ($searchQuery) {
-    $conditions[] = "product_name LIKE ?";
-    $params[] = "%$searchQuery%";
-    $types .= 's';
-}
-
-if ($typeFilter !== 'all') {
-    $conditions[] = "type = ?";
-    $params[] = $typeFilter;
-    $types .= 's';
-}
-
-$whereClause = $conditions ? "WHERE " . implode(" AND ", $conditions) : "";
-
-// Get total items for pagination
-$sqlTotal = "SELECT COUNT(*) AS total FROM product $whereClause";
-$stmtTotal = $conn->prepare($sqlTotal);
-if ($conditions) {
-    $stmtTotal->bind_param($types, ...$params);
-}
-$stmtTotal->execute();
-$resultTotal = $stmtTotal->get_result();
-$totalItems = $resultTotal->fetch_assoc()['total'];
-
+// Calculate total number of pages
 $totalPages = ceil($totalItems / $itemsPerPage);
+
+// Make sure the page number is within the valid range
 $page = max(1, min($page, $totalPages));
+
+// Calculate the starting product for the current page
 $start = ($page - 1) * $itemsPerPage;
 
-// Get paginated and filtered products
-$sql = "SELECT * FROM product $whereClause LIMIT ?, ?";
-$stmt = $conn->prepare($sql);
-$params[] = $start;
-$params[] = $itemsPerPage;
-$types .= 'ii';
-
-if ($conditions) {
-    $stmt->bind_param($types, ...$params);
-} else {
-    $stmt->bind_param('ii', $start, $itemsPerPage);
-}
-$stmt->execute();
-$result = $stmt->get_result();
+// Get the products for the current page
+$sql = "SELECT * FROM product LIMIT $start, $itemsPerPage";
+$result = $conn->query($sql);
 $products = $result->fetch_all(MYSQLI_ASSOC);
 
-// Get product type counts for filter buttons
-$typeCounts = [];
-$typeResult = $conn->query("SELECT type, COUNT(*) as count FROM product GROUP BY type");
-while ($row = $typeResult->fetch_assoc()) {
-    $typeCounts[strtolower($row['type'])] = $row['count'];
-}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -226,16 +191,15 @@ while ($row = $typeResult->fetch_assoc()) {
         </nav>
     </div>
 
-  <section class="essentials py-5">
+    <section class="essentials py-5">
     <div class="d-flex">
         <div class="how-headings col-8 text-center mt-4">
             <p class="mb-0">Explore pet care</p>
             <h2 class="mb-4">Essentials</h2>
         </div>
         <div class="col-md-4 d-flex align-items-center">
-            <form method="GET" class="w-100">
-                <input type="hidden" name="type" value="<?= htmlspecialchars($typeFilter) ?>">
-                <input type="search" name="search" id="search-product" class="search-product" placeholder="Search products..." value="<?= htmlspecialchars($searchQuery) ?>">
+        <form method="GET" class="w-100">
+                <input type="search" name="search" id="search-product" class="search-product" placeholder="Search products..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
                 <button type="submit" class="product-button">Search</button>
             </form>
         </div>
@@ -244,26 +208,54 @@ while ($row = $typeResult->fetch_assoc()) {
         <div class="row align-items-start justify-content-center">
             <div class="col-lg-3 col-md-4 col-12 mb-3">
                 <div class="essentials-button d-flex flex-column align-items-start">
-                    <button onclick="filterProducts('all')" <?= $typeFilter === 'all' ? 'class="active"' : '' ?>>
-                        All Products (<?= array_sum($typeCounts) ?>)
-                    </button>
-                    <button onclick="filterProducts('petfood')" <?= $typeFilter === 'petfood' ? 'class="active"' : '' ?>>
-                        Pet Food (<?= $typeCounts['petfood'] ?? 0 ?>)
-                    </button>
-                    <button onclick="filterProducts('pettoys')" <?= $typeFilter === 'pettoys' ? 'class="active"' : '' ?>>
-                        Pet Toys (<?= $typeCounts['pettoys'] ?? 0 ?>)
-                    </button>
-                    <button onclick="filterProducts('supplements')" <?= $typeFilter === 'supplements' ? 'class="active"' : '' ?>>
-                        Supplements (<?= $typeCounts['supplements'] ?? 0 ?>)
-                    </button>
+                    <button onclick="filterProducts('petfood')">Pet Food</button>
+                    <button onclick="filterProducts('pettoys')">Pet Toys</button>
+                    <button onclick="filterProducts('supplements')">Supplements</button>
                 </div>
             </div>
 
             <div class="col-lg-9 col-md-8 col-12">
                 <div class="row" id="product-list">
-                    <?php if (count($products) > 0): ?>
-                        <?php foreach ($products as $product): ?>
-                            <div class="col-lg-4 col-md-6 col-12 mb-4 product-item" data-type="<?= strtolower($product['type']) ?>">
+                <?php
+                    require '../../../../db.php';
+
+                    // Pagination and search parameters
+                    $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
+                    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                    $itemsPerPage = 6;
+
+                    // Search condition
+                    $searchCondition = $searchQuery ? "WHERE product_name LIKE ?" : "";
+
+                    // Get total items for pagination
+                    $sqlTotal = "SELECT COUNT(*) AS total FROM product $searchCondition";
+                    $stmtTotal = $conn->prepare($sqlTotal);
+                    if ($searchQuery) {
+                        $stmtTotal->bind_param("s", $searchLike);
+                        $searchLike = "%$searchQuery%";
+                    }
+                    $stmtTotal->execute();
+                    $resultTotal = $stmtTotal->get_result();
+                    $totalItems = $resultTotal->fetch_assoc()['total'];
+
+                    $totalPages = ceil($totalItems / $itemsPerPage);
+                    $page = max(1, min($page, $totalPages));
+                    $start = ($page - 1) * $itemsPerPage;
+
+                    // Get paginated and filtered products
+                    $sql = "SELECT * FROM product $searchCondition LIMIT ?, ?";
+                    $stmt = $conn->prepare($sql);
+                    if ($searchQuery) {
+                        $stmt->bind_param("sii", $searchLike, $start, $itemsPerPage);
+                    } else {
+                        $stmt->bind_param("ii", $start, $itemsPerPage);
+                    }
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+
+                    if ($result->num_rows > 0):
+                        while ($product = $result->fetch_assoc()): ?>
+                           <div class="col-lg-4 col-md-6 col-12 mb-4 product-item" data-type="<?= strtolower($product['type']) ?>">
                                 <div class="product">
                                     <div class="product-itemss" style="height: 36vh;">
                                         <img src="../../../../assets/img/product/<?= $product['product_img'] ?>" alt="Product Image">
@@ -275,20 +267,20 @@ while ($row = $typeResult->fetch_assoc()) {
                                         <p class="price mb-0"><?= htmlspecialchars(number_format($product['cost'], 2)) ?></p>
                                     </div>
                                     <?php if ($product['quantity'] > 0): ?>
-                                        <div class="d-flex justify-content-between item-btn">
-                                            <a href="../../../../features/users/web/api/buy-now.php?id=<?= $product['id'] ?>&type=<?= htmlspecialchars($product['type']) ?>" class="btn buy-now">BUY NOW!</a>
-                                            <a href="../../../../features/users/web/api/buy-now.php?id=<?= $product['id'] ?>&type=<?= htmlspecialchars($product['type']) ?>&triggerModal=true" class="btn add-to-cart">
-                                                <span class="material-symbols-outlined">shopping_cart</span>
-                                            </a>
-                                        </div>
+                                    <div class="d-flex justify-content-between item-btn">
+                                        <a href="../../../../features/users/web/api/buy-now.php?id=<?= $product['id'] ?>&type=<?= htmlspecialchars($product['type']) ?>" class="btn buy-now">BUY NOW!</a>
+                                        <a href="../../../../features/users/web/api/buy-now.php?id=<?= $product['id'] ?>&type=<?= htmlspecialchars($product['type']) ?>&triggerModal=true" class="btn add-to-cart">
+                                            <span class="material-symbols-outlined">shopping_cart</span>
+                                        </a>
+                                    </div>
                                     <?php else: ?>
-                                        <button class="buy-now">Out Of Stock!</button>
+                                    <button class="buy-now">Out Of Stock!</button>
                                     <?php endif; ?>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <p>No products found matching your criteria.</p>
+                        <?php endwhile; 
+                    else: ?>
+                        <p>No products found matching your search criteria.</p>
                     <?php endif; ?>
                 </div>
 
@@ -298,7 +290,7 @@ while ($row = $typeResult->fetch_assoc()) {
                         <ul class="pagination d-flex gap-2">
                             <?php if ($page > 1): ?>
                                 <li class="page-item">
-                                    <a class="page-link prev" href="?page=<?= $page - 1 ?>&type=<?= $typeFilter ?>&search=<?= urlencode($searchQuery) ?>"><</a>
+                                    <a class="page-link prev" href="?page=<?= $page - 1 ?>"><</a>
                                 </li>
                             <?php endif; ?>
 
@@ -309,13 +301,13 @@ while ($row = $typeResult->fetch_assoc()) {
 
                             for ($i = $startPage; $i <= $endPage; $i++): ?>
                                 <li class="page-item <?= $i === $page ? 'active' : '' ?>">
-                                    <a class="page-link" href="?page=<?= $i ?>&type=<?= $typeFilter ?>&search=<?= urlencode($searchQuery) ?>"><?= $i ?></a>
+                                    <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
                                 </li>
                             <?php endfor; ?>
 
                             <?php if ($page < $totalPages): ?>
                                 <li class="page-item">
-                                    <a class="page-link next" href="?page=<?= $page + 1 ?>&type=<?= $typeFilter ?>&search=<?= urlencode($searchQuery) ?>">></a>
+                                    <a class="page-link next" href="?page=<?= $page + 1 ?>">></a>
                                 </li>
                             <?php endif; ?>
                         </ul>
@@ -325,15 +317,6 @@ while ($row = $typeResult->fetch_assoc()) {
         </div>
     </div>
 </section>
-
-<script>
-function filterProducts(type) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('type', type);
-    url.searchParams.set('page', 1); // Reset to first page when filtering
-    window.location.href = url.toString();
-}
-</script>
    
 
       <!--Chat Bot-->

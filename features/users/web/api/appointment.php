@@ -59,12 +59,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $firstName = htmlspecialchars($_POST['firstName']);
     $lastName = htmlspecialchars($_POST['lastName']);
     $ownerName = trim($firstName . ' ' . $lastName);
-   $rawContact = preg_replace('/\D/', '', $_POST['contactNum']);
-   $rawContact = $_POST['contactNum'] ?? '';
+    $rawContact = $_POST['contactNum'] ?? '';
+    $rawContact = preg_replace('/\D/', '', $rawContact); // Remove all non-digit characters
 
-    if (strlen($rawContact) === 10 && ctype_digit($rawContact)) {
-        $contactNum = '0' . $rawContact;
-    } 
+    // Validate phone number - must start with 9 and be exactly 10 digits
+    if (strlen($rawContact) !== 10 || !ctype_digit($rawContact) || $rawContact[0] !== '9') {
+        // Handle the error (redirect back with error message or show error)
+        header("Location: appointment.php?error=invalid_phone");
+        exit();
+    }
+
+    $contactNum = '0' . $rawContact;
     $email = htmlspecialchars($_POST['ownerEmail']);
     $barangay = isset($_POST['barangayDropdown']) ? htmlspecialchars($_POST['barangayDropdown']) : null;
     $petType = htmlspecialchars($_POST['petType']);
@@ -386,10 +391,33 @@ $conn->close();
                         id="contactNum" 
                         name="contactNum" 
                         placeholder="9123456789" 
-                        pattern="[0-9]{10}" 
+                        pattern="9[0-9]{9}" 
                         maxlength="10" 
-                        required>
+                        required
+                        oninput="validatePhoneNumber(this)">
                 </div>
+                <script>
+                    function validatePhoneNumber(input) {
+                        // Remove any non-digit characters
+                        input.value = input.value.replace(/\D/g, '');
+                        
+                        // Validate the first digit is 9
+                        if (input.value.length > 0 && input.value[0] !== '9') {
+                            input.setCustomValidity("Phone number must start with 9");
+                        } else {
+                            input.setCustomValidity("");
+                        }
+                    }
+
+                    document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+                        const phoneInput = document.getElementById('contactNum');
+                        if (phoneInput.value.length !== 10 || phoneInput.value[0] !== '9') {
+                            e.preventDefault();
+                            alert("Phone number must be 10 digits starting with 9");
+                            phoneInput.focus();
+                        }
+                    });
+                    </script>
                 <small class="form-text text-muted">Enter 10-digit number (e.g., 9123456789)</small>
                 </div>
 

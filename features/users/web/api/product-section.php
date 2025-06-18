@@ -275,10 +275,48 @@ $result = $stmt->get_result();
 
 
 </body>
+<script>
+    let allProducts = [];
+let currentCategory = '';
+
+function loadAllProducts() {
+    const productElements = document.querySelectorAll('.product-item');
+    console.log("Found products:", productElements.length); // <--- check if > 0
+    allProducts = Array.from(productElements);
+    displayLimitedProducts(allProducts);
+}
+function filterProducts(type) {
+    currentCategory = type;
+
+    const filteredProducts = allProducts.filter(product => {
+        const productType = product.dataset.type;
+        if (type === 'all') return true;
+        return productType.toLowerCase() === type.toLowerCase();
+    });
+
+    displayLimitedProducts(filteredProducts);
+}
+
+function displayLimitedProducts(products) {
+    allProducts.forEach(product => {
+        product.style.display = 'none';
+    });
+
+    products.forEach(product => {
+        product.style.display = 'block';
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    loadAllProducts();
+    filterProducts('all'); // Show all initially
+});
+
+</script>
 <script src="../../function/script/chat-bot_product.js"></script>
 <script src="../../function/script/chatbot_questionslide.js"></script>
 <script src="../../function/script/chatbot-toggle.js"></script>
-<script src="../../function/script/filter.js"></script>
+
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
 

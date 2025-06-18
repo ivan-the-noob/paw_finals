@@ -10,7 +10,7 @@ if (isset($_SESSION['email']) && isset($_SESSION['profile_picture'])) {
 
 require '../../../../db.php';
 
-// Pagination and filtering parameters
+// Get all filter parameters
 $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
 $typeFilter = isset($_GET['type']) ? strtolower($_GET['type']) : 'all';
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -64,6 +64,13 @@ if ($conditions) {
 $stmt->execute();
 $result = $stmt->get_result();
 $products = $result->fetch_all(MYSQLI_ASSOC);
+
+// Get product type counts for filter buttons
+$typeCounts = [];
+$typeResult = $conn->query("SELECT type, COUNT(*) as count FROM product GROUP BY type");
+while ($row = $typeResult->fetch_assoc()) {
+    $typeCounts[strtolower($row['type'])] = $row['count'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -237,10 +244,18 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
         <div class="row align-items-start justify-content-center">
             <div class="col-lg-3 col-md-4 col-12 mb-3">
                 <div class="essentials-button d-flex flex-column align-items-start">
-                    <button onclick="filterProducts('all')" <?= $typeFilter === 'all' ? 'class="active"' : '' ?>>All Products</button>
-                    <button onclick="filterProducts('petfood')" <?= $typeFilter === 'petfood' ? 'class="active"' : '' ?>>Pet Food</button>
-                    <button onclick="filterProducts('pettoys')" <?= $typeFilter === 'pettoys' ? 'class="active"' : '' ?>>Pet Toys</button>
-                    <button onclick="filterProducts('supplements')" <?= $typeFilter === 'supplements' ? 'class="active"' : '' ?>>Supplements</button>
+                    <button onclick="filterProducts('all')" <?= $typeFilter === 'all' ? 'class="active"' : '' ?>>
+                        All Products (<?= array_sum($typeCounts) ?>)
+                    </button>
+                    <button onclick="filterProducts('petfood')" <?= $typeFilter === 'petfood' ? 'class="active"' : '' ?>>
+                        Pet Food (<?= $typeCounts['petfood'] ?? 0 ?>)
+                    </button>
+                    <button onclick="filterProducts('pettoys')" <?= $typeFilter === 'pettoys' ? 'class="active"' : '' ?>>
+                        Pet Toys (<?= $typeCounts['pettoys'] ?? 0 ?>)
+                    </button>
+                    <button onclick="filterProducts('supplements')" <?= $typeFilter === 'supplements' ? 'class="active"' : '' ?>>
+                        Supplements (<?= $typeCounts['supplements'] ?? 0 ?>)
+                    </button>
                 </div>
             </div>
 

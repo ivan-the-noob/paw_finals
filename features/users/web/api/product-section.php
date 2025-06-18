@@ -276,44 +276,58 @@ $result = $stmt->get_result();
 
 </body>
 <script>
-let allProducts = [];
-let currentCategory = '';
-
-function loadAllProducts() {
-    const productElements = document.querySelectorAll('.product-item');
-    console.log("Found products:", productElements.length);
-    allProducts = Array.from(productElements);
-    // Don't display anything yet — let filterProducts handle it
-}
-
-function filterProducts(type) {
-    currentCategory = type;
-
-    const filteredProducts = allProducts.filter(product => {
-        const productType = product.dataset.type;
-        if (type === 'all') return true;
-        return productType.toLowerCase() === type.toLowerCase();
-    });
-
-    displayProducts(filteredProducts);
-}
-
-function displayProducts(products) {
-    allProducts.forEach(product => {
-        product.style.display = 'none';
-    });
-
-    products.forEach(product => {
-        product.style.display = 'block';
-    });
-}
-
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function() {
+    // Initialize product variables
+    let allProducts = [];
+    let currentCategory = 'all'; // Default to showing all
+    
+    // Load all products when page loads
+    function loadAllProducts() {
+        allProducts = Array.from(document.querySelectorAll('.product-item'));
+        console.log("Total products found:", allProducts.length); // Debug log
+        
+        if (allProducts.length > 0) {
+            // Initially show all products
+            showAllProducts();
+        } else {
+            console.log("No products found in the DOM");
+        }
+    }
+    
+    // Show all products
+    function showAllProducts() {
+        allProducts.forEach(product => {
+            product.style.display = 'block';
+        });
+    }
+    
+    // Filter products by type
+    function filterProducts(type) {
+        currentCategory = type;
+        console.log(`Filtering by: ${type}`); // Debug log
+        
+        if (type === 'all') {
+            showAllProducts();
+            return;
+        }
+        
+        allProducts.forEach(product => {
+            const productType = product.dataset.type.toLowerCase();
+            if (productType === type.toLowerCase()) {
+                product.style.display = 'block';
+            } else {
+                product.style.display = 'none';
+            }
+        });
+    }
+    
+    // Initialize
     loadAllProducts();
-    filterProducts('all');
+    
+    // Make filterProducts available globally for button clicks
+    window.filterProducts = filterProducts;
 });
 </script>
-
 <script src="../../function/script/chat-bot_product.js"></script>
 <script src="../../function/script/chatbot_questionslide.js"></script>
 <script src="../../function/script/chatbot-toggle.js"></script>

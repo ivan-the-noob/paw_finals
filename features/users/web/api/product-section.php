@@ -220,161 +220,56 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
         <div class="row align-items-start justify-content-center">
             <div class="col-lg-3 col-md-4 col-12 mb-3">
                 <div class="essentials-button d-flex flex-column align-items-start">
-                    <button class="filter-btn active" data-type="all">All Products</button>
-                    <button class="filter-btn" data-type="petfood">Pet Food</button>
-                    <button class="filter-btn" data-type="pettoys">Pet Toys</button>
-                    <button class="filter-btn" data-type="supplements">Supplements</button>
+                    <button onclick="filterProducts('all')">All Products</button>
+                    <button onclick="filterProducts('petfood')">Pet Food</button>
+                    <button onclick="filterProducts('pettoys')">Pet Toys</button>
+                    <button onclick="filterProducts('supplements')">Supplements</button>
                 </div>
             </div>
 
             <div class="col-lg-9 col-md-8 col-12">
                 <div class="row" id="product-list">
-                    <?php foreach ($products as $product): ?>
-                        <div class="col-lg-4 col-md-6 col-12 mb-4 product-item" 
-                             data-type="<?= strtolower($product['type']) ?>">
-                            <!-- Your product HTML remains the same -->
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                
-                <!-- Pagination Controls -->
-                <div class="pagination-container mt-4">
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination justify-content-center" id="pagination">
-                            <!-- Pagination will be added by JavaScript -->
-                        </ul>
-                    </nav>
+                    <?php
+                    require '../../../../db.php';
+                    
+                    // Get ALL products from database
+                    $sql = "SELECT * FROM product";
+                    $result = $conn->query($sql);
+
+                    if ($result->num_rows > 0):
+                        while ($product = $result->fetch_assoc()): ?>
+                            <div class="col-lg-4 col-md-6 col-12 mb-4 product-item" data-type="<?= strtolower($product['type']) ?>">
+                                <div class="product">
+                                    <div class="product-itemss" style="height: 36vh;">
+                                        <img src="../../../../assets/img/product/<?= $product['product_img'] ?>" alt="Product Image">
+                                        <h5 class="mt-4 mb-0 product_name"><?= htmlspecialchars($product['product_name']) ?></h5>
+                                        <p class="mt-0 mb-0 product_name"><?= htmlspecialchars($product['quantity']) ?>x</p>
+                                    </div>
+                                    <div class="d-flex prices">
+                                        <p class="tag align-items-center mb-0 d-flex">PHP</p>
+                                        <p class="price mb-0"><?= htmlspecialchars(number_format($product['cost'], 2)) ?></p>
+                                    </div>
+                                    <?php if ($product['quantity'] > 0): ?>
+                                    <div class="d-flex justify-content-between item-btn">
+                                        <a href="../../../../features/users/web/api/buy-now.php?id=<?= $product['id'] ?>&type=<?= htmlspecialchars($product['type']) ?>" class="btn buy-now">BUY NOW!</a>
+                                        <a href="../../../../features/users/web/api/buy-now.php?id=<?= $product['id'] ?>&type=<?= htmlspecialchars($product['type']) ?>&triggerModal=true" class="btn add-to-cart">
+                                            <span class="material-symbols-outlined">shopping_cart</span>
+                                        </a>
+                                    </div>
+                                    <?php else: ?>
+                                    <button class="buy-now">Out Of Stock!</button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endwhile; 
+                    else: ?>
+                        <p>No products found.</p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
 </section>
-
-<style>
-.filter-btn {
-    background: none;
-    border: none;
-    padding: 8px 15px;
-    margin-bottom: 5px;
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.3s;
-    width: 100%;
-}
-.filter-btn.active {
-    background-color: #4CAF50;
-    color: white;
-    border-radius: 4px;
-}
-#product-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-.product-item {
-    display: none;
-    flex: 0 0 calc(33.333% - 15px);
-}
-.product-item.show {
-    display: block;
-}
-.page-item.active .page-link {
-    background-color: #4CAF50;
-    border-color: #4CAF50;
-}
-.page-link {
-    color: #4CAF50;
-}
-</style>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const allProducts = Array.from(document.querySelectorAll('.product-item'));
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const paginationContainer = document.getElementById('pagination');
-    const productsPerPage = 6;
-    let currentPage = 1;
-    let currentFilter = 'all';
-    let totalPages = 1;
-
-    // Initial display
-    filterProducts('all');
-
-    // Filter button click handlers
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Update active button
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Filter products
-            currentFilter = this.dataset.type;
-            currentPage = 1;
-            filterProducts(currentFilter);
-        });
-    });
-
-    function filterProducts(type) {
-        // Hide all products
-        allProducts.forEach(product => product.classList.remove('show'));
-        
-        // Filter products
-        const filteredProducts = type === 'all'
-            ? allProducts
-            : allProducts.filter(product => product.dataset.type === type);
-        
-        // Calculate total pages
-        totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-        
-        // Show current page of filtered products
-        showPage(filteredProducts, currentPage);
-        
-        // Update pagination
-        updatePagination();
-    }
-
-    function showPage(filteredProducts, page) {
-        const startIndex = (page - 1) * productsPerPage;
-        const endIndex = startIndex + productsPerPage;
-        const productsToShow = filteredProducts.slice(startIndex, endIndex);
-        
-        productsToShow.forEach(product => product.classList.add('show'));
-    }
-
-    function updatePagination() {
-        paginationContainer.innerHTML = '';
-        
-        if (totalPages <= 1) return;
-        
-        // Previous button
-        const prevLi = document.createElement('li');
-        prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-        prevLi.innerHTML = `<a class="page-link" href="#" aria-label="Previous" onclick="changePage(${currentPage - 1})">&laquo;</a>`;
-        paginationContainer.appendChild(prevLi);
-        
-        // Page numbers
-        for (let i = 1; i <= totalPages; i++) {
-            const pageLi = document.createElement('li');
-            pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
-            pageLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i})">${i}</a>`;
-            paginationContainer.appendChild(pageLi);
-        }
-        
-        // Next button
-        const nextLi = document.createElement('li');
-        nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
-        nextLi.innerHTML = `<a class="page-link" href="#" aria-label="Next" onclick="changePage(${currentPage + 1})">&raquo;</a>`;
-        paginationContainer.appendChild(nextLi);
-    }
-
-    // Make these functions available globally
-    window.changePage = function(page) {
-        if (page < 1 || page > totalPages) return;
-        currentPage = page;
-        filterProducts(currentFilter);
-    };
-});
-</script>
    
 
       <!--Chat Bot-->

@@ -56,6 +56,18 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
 
 </head>
 
+<style>
+
+.product-item {
+    display: block; 
+}
+
+
+.pagination {
+    display: none;
+}
+</style>
+
 <body>
 <div class="navbar-container">
 <nav class="navbar navbar-expand-lg navbar-light">
@@ -191,14 +203,14 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
         </nav>
     </div>
 
-    <section class="essentials py-5">
+   <section class="essentials py-5">
     <div class="d-flex">
         <div class="how-headings col-8 text-center mt-4">
             <p class="mb-0">Explore pet care</p>
             <h2 class="mb-4">Essentials</h2>
         </div>
         <div class="col-md-4 d-flex align-items-center">
-        <form method="GET" class="w-100">
+            <form method="GET" class="w-100">
                 <input type="search" name="search" id="search-product" class="search-product" placeholder="Search products..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
                 <button type="submit" class="product-button">Search</button>
             </form>
@@ -208,6 +220,7 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
         <div class="row align-items-start justify-content-center">
             <div class="col-lg-3 col-md-4 col-12 mb-3">
                 <div class="essentials-button d-flex flex-column align-items-start">
+                    <button onclick="filterProducts('all')">All Products</button>
                     <button onclick="filterProducts('petfood')">Pet Food</button>
                     <button onclick="filterProducts('pettoys')">Pet Toys</button>
                     <button onclick="filterProducts('supplements')">Supplements</button>
@@ -216,46 +229,16 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
 
             <div class="col-lg-9 col-md-8 col-12">
                 <div class="row" id="product-list">
-                <?php
+                    <?php
                     require '../../../../db.php';
-
-                    // Pagination and search parameters
-                    $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
-                    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-                    $itemsPerPage = 6;
-
-                    // Search condition
-                    $searchCondition = $searchQuery ? "WHERE product_name LIKE ?" : "";
-
-                    // Get total items for pagination
-                    $sqlTotal = "SELECT COUNT(*) AS total FROM product $searchCondition";
-                    $stmtTotal = $conn->prepare($sqlTotal);
-                    if ($searchQuery) {
-                        $stmtTotal->bind_param("s", $searchLike);
-                        $searchLike = "%$searchQuery%";
-                    }
-                    $stmtTotal->execute();
-                    $resultTotal = $stmtTotal->get_result();
-                    $totalItems = $resultTotal->fetch_assoc()['total'];
-
-                    $totalPages = ceil($totalItems / $itemsPerPage);
-                    $page = max(1, min($page, $totalPages));
-                    $start = ($page - 1) * $itemsPerPage;
-
-                    // Get paginated and filtered products
-                    $sql = "SELECT * FROM product $searchCondition LIMIT ?, ?";
-                    $stmt = $conn->prepare($sql);
-                    if ($searchQuery) {
-                        $stmt->bind_param("sii", $searchLike, $start, $itemsPerPage);
-                    } else {
-                        $stmt->bind_param("ii", $start, $itemsPerPage);
-                    }
-                    $stmt->execute();
-                    $result = $stmt->get_result();
+                    
+                    // Get ALL products from database
+                    $sql = "SELECT * FROM product";
+                    $result = $conn->query($sql);
 
                     if ($result->num_rows > 0):
                         while ($product = $result->fetch_assoc()): ?>
-                           <div class="col-lg-4 col-md-6 col-12 mb-4 product-item" data-type="<?= strtolower($product['type']) ?>">
+                            <div class="col-lg-4 col-md-6 col-12 mb-4 product-item" data-type="<?= strtolower($product['type']) ?>">
                                 <div class="product">
                                     <div class="product-itemss" style="height: 36vh;">
                                         <img src="../../../../assets/img/product/<?= $product['product_img'] ?>" alt="Product Image">
@@ -280,38 +263,8 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
                             </div>
                         <?php endwhile; 
                     else: ?>
-                        <p>No products found matching your search criteria.</p>
+                        <p>No products found.</p>
                     <?php endif; ?>
-                </div>
-
-                <!-- Pagination Links -->
-                <div class="pagination d-flex justify-content-end mt-4">
-                    <nav>
-                        <ul class="pagination d-flex gap-2">
-                            <?php if ($page > 1): ?>
-                                <li class="page-item">
-                                    <a class="page-link prev" href="?page=<?= $page - 1 ?>"><</a>
-                                </li>
-                            <?php endif; ?>
-
-                            <?php
-                            $startPage = max(1, $page - 1);
-                            $endPage = min($totalPages, $startPage + 2);
-                            $startPage = max(1, $endPage - 2);
-
-                            for ($i = $startPage; $i <= $endPage; $i++): ?>
-                                <li class="page-item <?= $i === $page ? 'active' : '' ?>">
-                                    <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
-                                </li>
-                            <?php endfor; ?>
-
-                            <?php if ($page < $totalPages): ?>
-                                <li class="page-item">
-                                    <a class="page-link next" href="?page=<?= $page + 1 ?>">></a>
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-                    </nav>
                 </div>
             </div>
         </div>

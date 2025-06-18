@@ -1,55 +1,68 @@
+let allProducts = [];
+let currentCategory = '';
+const PRODUCTS_PER_PAGE = 6;
 
-let allProducts = []; 
-let currentCategory = ''; 
-
-function loadAllProducts() {
-    const productElements = document.querySelectorAll('.product-item');
-    allProducts = Array.from(productElements); // Make sure all products are stored as an array
-
-    console.log('All products loaded:', allProducts);
-
-    displayLimitedProducts(allProducts, 6);
+// Initialize the product system
+function initProductSystem() {
+    loadAllProducts();
+    setupFilterButtons();
+    filterProducts('all'); // Show all products initially
 }
 
+// Load all products from the DOM
+function loadAllProducts() {
+    allProducts = Array.from(document.querySelectorAll('.product-item'));
+    console.log(`Loaded ${allProducts.length} products`);
+}
+
+// Set up event listeners for filter buttons
+function setupFilterButtons() {
+    document.querySelectorAll('.essentials-button button').forEach(button => {
+        button.addEventListener('click', function() {
+            const type = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+            filterProducts(type);
+        });
+    });
+}
+
+// Filter products by type
 function filterProducts(type) {
     currentCategory = type;
+    console.log(`Filtering products by: ${type}`);
 
-    console.log(`Filtering for: ${type}`);
+    const filteredProducts = type === 'all' 
+        ? allProducts 
+        : allProducts.filter(product => {
+            return product.dataset.type.toLowerCase() === type.toLowerCase();
+        });
 
-    const filteredProducts = allProducts.filter(product => {
-        const productType = product.dataset.type;
-        console.log(`Product type: ${productType}, Looking for: ${type}`);
-
-        // If type is 'all', show all products
-        if (type === 'all') {
-            return true;
-        }
-        
-        // Ensure case-insensitive comparison
-        return productType.toLowerCase() === type.toLowerCase();
-    });
-
-    console.log(`Filtered Products for ${type}:`, filteredProducts);
-
-    displayLimitedProducts(filteredProducts, 6);
+    console.log(`Found ${filteredProducts.length} products for ${type}`);
+    displayProducts(filteredProducts);
 }
 
-
-function displayLimitedProducts(products, limit) {
+// Display products with pagination
+function displayProducts(products) {
+    // Hide all products first
     allProducts.forEach(product => {
         product.style.display = 'none';
     });
 
-    let displayedCount = 0;
-    products.forEach(product => {
-        if (displayedCount < limit) {
-            product.style.display = 'block'; 
-            displayedCount++;
-        }
+    // Show only the first page of filtered products
+    const productsToShow = products.slice(0, PRODUCTS_PER_PAGE);
+    productsToShow.forEach(product => {
+        product.style.display = 'block';
     });
+
+    // Update pagination controls (you'll need to implement this)
+    updatePagination(products.length);
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    loadAllProducts();
-    filterProducts('all');  // Initially show all products
-});
+// Update pagination controls (basic implementation)
+function updatePagination(totalProducts) {
+    const totalPages = Math.ceil(totalProducts / PRODUCTS_PER_PAGE);
+    console.log(`Total pages: ${totalPages}`);
+    // You would update your pagination UI here
+}
+
+// Initialize when DOM is loaded
+document.addEventListener("DOMContentLoaded", initProductSystem);

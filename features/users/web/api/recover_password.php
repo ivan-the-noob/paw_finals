@@ -28,9 +28,17 @@ if ($token) {
 }
 
 // Handle new password submission
+// Handle new password submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'], $_POST['token'])) {
     $password = $_POST['password'];
     $token = $_POST['token'];
+
+    // Validate password strength
+    if (!preg_match('/^(?=.*[A-Z]).{8,}$/', $password)) {
+        $_SESSION['error'] = "Password must be at least 8 characters long and contain at least one uppercase letter.";
+        header("Location: recover_password.php?token=" . urlencode($token));
+        exit();
+    }
 
     $stmt = $conn->prepare("SELECT * FROM password_resets WHERE token = ? AND expires_at > NOW()");
     $stmt->bind_param("s", $token);
@@ -41,15 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'], $_POST['to
         $row = $result->fetch_assoc();
         $email = $row['email'];
 
-        // Hash the new password
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        // Update password in users table
         $update = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
         $update->bind_param("ss", $hashedPassword, $email);
         $update->execute();
 
-        // Remove used token
         $delete = $conn->prepare("DELETE FROM password_resets WHERE email = ?");
         $delete->bind_param("s", $email);
         $delete->execute();
@@ -61,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'], $_POST['to
         $_SESSION['error'] = "Invalid or expired token.";
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -92,7 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'], $_POST['to
                         <form method="POST">
                             <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
                             <div class="mb-3">
-                                <input type="password" name="password" class="form-control" placeholder="Enter new password" required>
+                              <input type="password" name="password" class="form-control" placeholder="Enter new password"
+                                pattern="(?=.*[A-Z]).{8,}" title="Password must be at least 8 characters and include at least 1 uppercase letter" required>
                             </div>
                             <button type="submit" class="btn btn-primary w-50 d-flex mx-auto text-center justify-content-center align-items-center">Reset Password</button>
                         </form>

@@ -149,7 +149,7 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
 </style>
 
           
-            <div class="container mt-4 mb-4 position-absolute w-75" id="lowStockContainer" style="background-color: #fff; z-index: 999; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);">
+            <div class="container mt-4 mb-4 position-absolute w-25" id="lowStockContainer" style="background-color: #fff; z-index: 999; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);">
     <!-- Close Button -->
     <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close" onclick="document.getElementById('lowStockContainer').style.display='none';"></button>
 

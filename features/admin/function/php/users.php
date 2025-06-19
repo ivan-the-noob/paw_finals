@@ -29,7 +29,7 @@ if (!$result) {
 
             echo "<td class='d-flex gap-1 justify-content-center'>";
             echo "<button class='btn btn-sm btn-warning text-white' data-bs-toggle='modal' data-bs-target='#updateModal' data-id='$id' data-name='" . htmlspecialchars($row['name']) . "' data-email='" . htmlspecialchars($row['email']) . "'><i class='fas fa-edit'></i></button>";
-            echo "<form action='../../function/php/delete_user.php' method='POST' style='display:inline-block;'>";
+            echo "<form action='../../function/php/delete_users.php' method='POST' style='display:inline-block;'>";
 echo "<input type='hidden' name='user_id' value='" . $id . "' />";
 echo "<button type='submit' class='btn btn-danger btn-sm' title='Delete'><i class='fas fa-trash'></i></button>";
 echo "</form>";

@@ -131,22 +131,7 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
         </div>
         <!--Notification and Profile Admin End-->
         <div class="app-req">
-            <style>
-    @keyframes popIn {
-        0% {
-            opacity: 0;
-            transform: scale(0.9);
-        }
-        100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-
-    #lowStockContainer {
-        animation: popIn 0.6s ease-out;
-    }
-</style>
+        
 
           
             <div class="container mt-4 mb-4 position-absolute w-25" id="lowStockContainer" style="background-color: #fff; z-index: 999; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);">
@@ -666,6 +651,23 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                     <?php endif; ?>
                         </table>
 </body>
+
+    <style>
+    @keyframes popIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    #lowStockContainer {
+        animation: popIn 0.6s ease-out;
+    }
+</style>
 
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" crossorigin="anonymous">

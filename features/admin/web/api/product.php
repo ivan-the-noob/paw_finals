@@ -171,10 +171,10 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                             <p class="card-text fw-bold" style="color: red;"><strong>Quantity:</strong> <?= htmlspecialchars($product['quantity']) ?></p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <button class="btn btn-primary" title="Update" data-bs-toggle="modal" data-bs-target="#editProductModal<?= $product['id'] ?>">
-                                    <i class="fas fa-edit"></i> Restock 
+                                    <i class="fas fa-edit"></i>
                                 </button>
                                 <button class="btn btn-danger" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal<?= $product['id'] ?>">
-                                    <i class="fas fa-trash-alt"></i> Delete
+                                    <i class="fas fa-trash-alt"></i> 
                                 </button>
                             </div>
                         </div>

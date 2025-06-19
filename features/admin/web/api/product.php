@@ -531,26 +531,42 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                             </div>
 
                         </div>
-                        <?php if ($totalProducts > $perPage): ?>
-                            <ul class="pagination justify-content-end mt-3 px-lg-5" id="paginationControls">
-                                <!-- Previous Button -->
-                                <li class="page-item <?= ($page == 1) ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="?page=<?= $page - 1 ?>">‹</a>
-                                </li>
+                       <?php if ($totalProducts > $perPage): ?>
+    <ul class="pagination justify-content-end mt-3 px-lg-5" id="paginationControls">
+        <!-- Previous Button -->
+        <li class="page-item <?= ($page == 1) ? 'disabled' : '' ?>">
+            <a class="page-link" href="?page=<?= $page - 1 ?>">‹</a>
+        </li>
 
-                                <!-- Page Numbers -->
-                                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                                    <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                                        <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
-                                    </li>
-                                <?php endfor; ?>
+        <!-- Page Numbers -->
+        <?php
+            $start = max(1, $page - 1);
+            $end = min($totalPages, $page + 1);
 
-                                <!-- Next Button -->
-                                <li class="page-item <?= ($page == $totalPages) ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="?page=<?= $page + 1 ?>">›</a>
-                                </li>
-                            </ul>
-                        <?php endif; ?>
+            if ($start > 1) {
+                echo '<li class="page-item"><a class="page-link" href="?page=1">1</a></li>';
+                if ($start > 2) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            }
+
+            for ($i = $start; $i <= $end; $i++): ?>
+                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                    <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                </li>
+        <?php endfor;
+
+            if ($end < $totalPages) {
+                if ($end < $totalPages - 1) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                echo '<li class="page-item"><a class="page-link" href="?page=' . $totalPages . '">' . $totalPages . '</a></li>';
+            }
+        ?>
+
+        <!-- Next Button -->
+        <li class="page-item <?= ($page == $totalPages) ? 'disabled' : '' ?>">
+            <a class="page-link" href="?page=<?= $page + 1 ?>">›</a>
+        </li>
+    </ul>
+<?php endif; ?>
+
 
 
                     </div>

@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Restrict to admin only
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../../../users/web/api/login.php");
     exit();
@@ -14,22 +13,23 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 5;
 $offset = ($page - 1) * $limit;
 
-// Get total number of ratings
+// Total reviews
 $totalQuery = "SELECT COUNT(*) FROM rating";
 $result = mysqli_query($conn, $totalQuery);
 $total_reviews = mysqli_fetch_row($result)[0];
 
-// Get paginated ratings
+// Get reviews with pagination
 $query = "SELECT id, email, rating, comment FROM rating LIMIT $limit OFFSET $offset";
 $result = mysqli_query($conn, $query);
 $reviews = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-// Calculate total pages
+// Total pages
 $total_pages = ceil($total_reviews / $limit);
 
-// Close the database connection
+// Close connection
 $conn->close();
 ?>
+
 
 
 
@@ -172,7 +172,7 @@ $conn->close();
 
             <!--Category Table-->
             <div class="table-wrapper px-lg-5">
-             <table class="table table-hover table-remove-borders">
+           <table class="table table-hover table-remove-borders">
     <thead class="thead-light">
         <tr>
             <th>#</th>
@@ -192,11 +192,9 @@ $conn->close();
                         <?php
                         $rating = (int)$review['rating'];
                         for ($i = 1; $i <= 5; $i++) {
-                            if ($i <= $rating) {
-                                echo '<i class="fas fa-star text-warning"></i>';
-                            } else {
-                                echo '<i class="far fa-star text-muted"></i>';
-                            }
+                            echo $i <= $rating
+                                ? '<i class="fas fa-star text-warning"></i>'
+                                : '<i class="far fa-star text-muted"></i>';
                         }
                         ?>
                     </td>
@@ -218,6 +216,34 @@ $conn->close();
         <?php endif; ?>
     </tbody>
 </table>
+
+<!-- Pagination Controls -->
+<?php if ($total_pages > 1): ?>
+    <nav>
+        <ul class="pagination justify-content-center">
+            <?php if ($page > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?php echo $page - 1; ?>">&laquo; Prev</a>
+                </li>
+            <?php endif; ?>
+
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
+                    <a class="page-link" href="?page=<?php echo $i; ?>">
+                        <?php echo $i; ?>
+                    </a>
+                </li>
+            <?php endfor; ?>
+
+            <?php if ($page < $total_pages): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next &raquo;</a>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </nav>
+<?php endif; ?>
+
 
 
                 <script>

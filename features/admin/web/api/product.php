@@ -538,27 +538,26 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
             <a class="page-link" href="?page=<?= $page - 1 ?>">‹</a>
         </li>
 
-        <!-- Page Numbers -->
+        <!-- Page Numbers (show only 3 at a time) -->
         <?php
             $start = max(1, $page - 1);
             $end = min($totalPages, $page + 1);
 
-            if ($start > 1) {
-                echo '<li class="page-item"><a class="page-link" href="?page=1">1</a></li>';
-                if ($start > 2) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            // Ensure 3 numbers are shown when possible
+            if ($end - $start < 2) {
+                if ($start == 1) {
+                    $end = min($totalPages, $start + 2);
+                } elseif ($end == $totalPages) {
+                    $start = max(1, $end - 2);
+                }
             }
 
-            for ($i = $start; $i <= $end; $i++): ?>
-                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                    <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
-                </li>
-        <?php endfor;
-
-            if ($end < $totalPages) {
-                if ($end < $totalPages - 1) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
-                echo '<li class="page-item"><a class="page-link" href="?page=' . $totalPages . '">' . $totalPages . '</a></li>';
-            }
+            for ($i = $start; $i <= $end; $i++):
         ?>
+            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+            </li>
+        <?php endfor; ?>
 
         <!-- Next Button -->
         <li class="page-item <?= ($page == $totalPages) ? 'disabled' : '' ?>">

@@ -583,8 +583,16 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                                     <a class="page-link" href="?page=<?= $page - 1 ?>">‹</a>
                                 </li>
 
-                                <!-- Page Numbers -->
-                                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                <?php
+                                $start = max(1, $page - 1);
+                                $end = min($totalPages, $start + 2);
+
+                                // Adjust start if we’re at the end to still show 3 items
+                                if (($end - $start) < 2 && $start > 1) {
+                                    $start = max(1, $end - 2);
+                                }
+
+                                for ($i = $start; $i <= $end; $i++): ?>
                                     <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
                                         <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
                                     </li>
@@ -596,6 +604,7 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                                 </li>
                             </ul>
                         <?php endif; ?>
+
 
 
                     </div>

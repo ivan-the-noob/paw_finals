@@ -149,7 +149,7 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
 </style>
 
           
-            <div class="container mt-4 mb-4 position-absolute w-75" id="lowStockContainer" style="background-color: #fff; z-index: 999; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);">
+            <div class="container mt-4 mb-4 position-absolute w-25" id="lowStockContainer" style="background-color: #fff; z-index: 999; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);">
     <!-- Close Button -->
     <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close" onclick="document.getElementById('lowStockContainer').style.display='none';"></button>
 
@@ -171,10 +171,10 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                             <p class="card-text fw-bold" style="color: red;"><strong>Quantity:</strong> <?= htmlspecialchars($product['quantity']) ?></p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <button class="btn btn-primary" title="Update" data-bs-toggle="modal" data-bs-target="#editProductModal<?= $product['id'] ?>">
-                                    <i class="fas fa-edit"></i> Restock 
+                                    <i class="fas fa-edit"></i>
                                 </button>
                                 <button class="btn btn-danger" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal<?= $product['id'] ?>">
-                                    <i class="fas fa-trash-alt"></i> Delete
+                                    <i class="fas fa-trash-alt"></i> 
                                 </button>
                             </div>
                         </div>
@@ -583,8 +583,16 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                                     <a class="page-link" href="?page=<?= $page - 1 ?>">‹</a>
                                 </li>
 
-                                <!-- Page Numbers -->
-                                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                <?php
+                                $start = max(1, $page - 1);
+                                $end = min($totalPages, $start + 2);
+
+                                // Adjust start if we’re at the end to still show 3 items
+                                if (($end - $start) < 2 && $start > 1) {
+                                    $start = max(1, $end - 2);
+                                }
+
+                                for ($i = $start; $i <= $end; $i++): ?>
                                     <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
                                         <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
                                     </li>
@@ -596,6 +604,7 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                                 </li>
                             </ul>
                         <?php endif; ?>
+
 
 
                     </div>

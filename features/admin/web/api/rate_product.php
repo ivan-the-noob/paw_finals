@@ -220,7 +220,7 @@ $conn->close();
 <!-- Pagination Controls -->
 <?php if ($total_pages > 1): ?>
     <nav>
-        <ul class="pagination justify-content-center">
+        <ul class="pagination justify-content-end">
             <?php if ($page > 1): ?>
                 <li class="page-item">
                     <a class="page-link" href="?page=<?php echo $page - 1; ?>">&laquo; </a>

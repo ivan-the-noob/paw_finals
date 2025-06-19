@@ -28,15 +28,15 @@ if (!$result) {
             echo "<td>" . htmlspecialchars($row['email']) . "</td>";
 
             echo "<td class='d-flex gap-1 justify-content-center'>";
-            echo "<button class='btn btn-sm btn-warning text-white' data-bs-toggle='modal' data-bs-target='#updateModal' data-id='$id' data-name='" . htmlspecialchars($row['name']) . "' data-email='" . htmlspecialchars($row['email']) . "'>Update</button>";
+            echo "<button class='btn btn-sm btn-warning text-white' data-bs-toggle='modal' data-bs-target='#updateModal' data-id='$id' data-name='" . htmlspecialchars($row['name']) . "' data-email='" . htmlspecialchars($row['email']) . "'><i class='fas fa-edit'></i></button>";
             echo "<form action='../../function/php/delete_user.php' method='POST'>"; 
             echo "<input type='hidden' name='user_id' value='" . $id . "' />";
-            echo "<input type='submit' value='Delete' class='btn btn-danger' />";
+            echo "<input type='submit' value='<i class='fas fa-trash-alt text-danger'></i>' class='btn btn-danger' />";
             echo "</form>";
           echo '
                 <button class="btn btn-sm '.($row['is_ban'] == 1 ? 'btn-success' : 'btn-danger').' btn-sm '.($row['is_ban'] == 1 ? 'unban-user' : 'ban-user').'" 
                         data-email="'.htmlspecialchars($row['email']).'" 
-                        title="'.($row['is_ban'] == 1 ? 'Enable' : 'Disable').' User">
+                        title="'.($row['is_ban'] == 1 ? '<i class="fas fa-toggle-on text-success"></i>' : '<i class="fas fa-toggle-off text-secondary"></i>').' User">
                     <i class="fas '.($row['is_ban'] == 1 ? 'fa-user-check' : 'fa-user-slash').'"></i> '.($row['is_ban'] == 1 ? 'Enable' : 'Disable').'
                 </button>
             ';

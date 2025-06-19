@@ -223,7 +223,7 @@ $conn->close();
         <ul class="pagination justify-content-center">
             <?php if ($page > 1): ?>
                 <li class="page-item">
-                    <a class="page-link" href="?page=<?php echo $page - 1; ?>">&laquo; Prev</a>
+                    <a class="page-link" href="?page=<?php echo $page - 1; ?>">&laquo; </a>
                 </li>
             <?php endif; ?>
 
@@ -237,7 +237,7 @@ $conn->close();
 
             <?php if ($page < $total_pages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next &raquo;</a>
+                    <a class="page-link" href="?page=<?php echo $page + 1; ?>"> &raquo;</a>
                 </li>
             <?php endif; ?>
         </ul>

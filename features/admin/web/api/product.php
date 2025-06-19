@@ -18,7 +18,7 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../css/category-list.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
       <link rel="icon" href="../../../../assets/img/logo.png" type="image/x-icon">
 
 </head>
@@ -131,10 +131,25 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
         </div>
         <!--Notification and Profile Admin End-->
         <div class="app-req">
-        
+            <style>
+    @keyframes popIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    #lowStockContainer {
+        animation: popIn 0.6s ease-out;
+    }
+</style>
 
           
-            <div class="container mt-4 mb-4 position-absolute w-25" id="lowStockContainer" style="background-color: #fff; z-index: 999; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);">
+            <div class="container mt-4 mb-4 position-absolute w-75" id="lowStockContainer" style="background-color: #fff; z-index: 999; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);">
     <!-- Close Button -->
     <button type="button" class="btn-close position-absolute" style="top: 10px; right: 10px;" aria-label="Close" onclick="document.getElementById('lowStockContainer').style.display='none';"></button>
 
@@ -156,10 +171,10 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                             <p class="card-text fw-bold" style="color: red;"><strong>Quantity:</strong> <?= htmlspecialchars($product['quantity']) ?></p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <button class="btn btn-primary" title="Update" data-bs-toggle="modal" data-bs-target="#editProductModal<?= $product['id'] ?>">
-                                    <i class="fas fa-edit"></i>
+                                    <i class="fas fa-edit"></i> Restock 
                                 </button>
                                 <button class="btn btn-danger" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal<?= $product['id'] ?>">
-                                    <i class="fas fa-trash-alt"></i> 
+                                    <i class="fas fa-trash-alt"></i> Delete
                                 </button>
                             </div>
                         </div>
@@ -568,16 +583,8 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                                     <a class="page-link" href="?page=<?= $page - 1 ?>">‹</a>
                                 </li>
 
-                                <?php
-                                $start = max(1, $page - 1);
-                                $end = min($totalPages, $start + 2);
-
-                                // Adjust start if we’re at the end to still show 3 items
-                                if (($end - $start) < 2 && $start > 1) {
-                                    $start = max(1, $end - 2);
-                                }
-
-                                for ($i = $start; $i <= $end; $i++): ?>
+                                <!-- Page Numbers -->
+                                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                                     <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
                                         <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
                                     </li>
@@ -589,7 +596,6 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                                 </li>
                             </ul>
                         <?php endif; ?>
-
 
 
                     </div>
@@ -651,23 +657,6 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role']) || $_SESSION['role']
                     <?php endif; ?>
                         </table>
 </body>
-
-    <style>
-    @keyframes popIn {
-        0% {
-            opacity: 0;
-            transform: scale(0.9);
-        }
-        100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-
-    #lowStockContainer {
-        animation: popIn 0.6s ease-out;
-    }
-</style>
 
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" crossorigin="anonymous">
